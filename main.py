@@ -5,7 +5,6 @@ import pandas as pd
 import sqlalchemy
 
 from fuzzywuzzy import fuzz
-from dotenv import load_dotenv
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from ftfy import fix_text
@@ -17,8 +16,8 @@ from sklearn.neighbors import NearestNeighbors
 class Connection:
 
     def __init__(self):
-        load_dotenv()
-        engine = sqlalchemy.create_engine(os.getenv('CONNECTION_STRING'))
+        CONNECTION_STRING = 'postgresql://hfdb:123AdminRiskAdv!@radient-prod-rr.csx3vkjw93hn.us-east-1.rds.amazonaws.com:5433/radient_prod'
+        engine = sqlalchemy.create_engine(CONNECTION_STRING)
 
         try:
             self.connection = engine.connect()
@@ -343,18 +342,18 @@ match_funds_owners = match_funds_owners[match_funds_owners['owners_fund_ratio'] 
 match_funds_owners['fund_confidence'] = 1 - match_funds_owners['fund_confidence']
 
 # Add cik_no_fund Column
-match_funds_owners['cik_no_fund'] = np.nan
+match_funds_owners['cik_no_fund_nan'] = np.nan
 
 # Rename columns
 filter_columns = [
     'fund', 'cik_no_fund',
-    'matched_fund', 'crd_no_fund', 'cik_no_fund', 'fund_confidence',
+    'matched_fund', 'crd_no_fund', 'cik_no_fund_nan', 'fund_confidence',
     'firm_id', 'form_d_firm_id', 'form_adv_firm_id',
 ]
 match_funds_owners = match_funds_owners[filter_columns]
 match_funds_owners.rename({
     'fund': 'entity_name', 'cik_no_fund': 'formd_cik',
-    'matched_fund': 'firm_name', 'crd_no_fund': 'firm_crd', 'fund_confidence': 'match_score',
+    'matched_fund': 'firm_name', 'crd_no_fund': 'firm_crd', 'cik_no_fund_nan': 'firm_cik', 'fund_confidence': 'match_score',
     'form_d_firm_id': 'firm_formd_value_id'
 }, inplace=True, axis=1)
 
