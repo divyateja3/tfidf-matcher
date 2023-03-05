@@ -16,7 +16,8 @@ from sklearn.neighbors import NearestNeighbors
 class Connection:
 
     def __init__(self):
-        CONNECTION_STRING = 'postgresql://hfdb:123AdminRiskAdv!@radient-prod-rr.csx3vkjw93hn.us-east-1.rds.amazonaws.com:5433/radient_prod'
+
+        CONNECTION_STRING = 'postgresql://hfdb:123AdminRiskAdv!@radient-prod.csx3vkjw93hn.us-east-1.rds.amazonaws.com:5433/radient_prod'
         engine = sqlalchemy.create_engine(CONNECTION_STRING)
 
         try:
@@ -36,7 +37,7 @@ class Connection:
     
     def frame_to_sql(self, dataframe, table_name):
         
-        dataframe.to_sql(table_name, self.connection, if_exists='replace', index=True)
+        dataframe.to_sql(table_name, self.connection, if_exists='append', index=False)
         
         return True
 
@@ -287,10 +288,10 @@ def preprocess(dataframe: pd.DataFrame, **parm):
 
 radient_prod = Connection()
 
-formd_funds = radient_prod.sql_to_frame('formd_funds.sql')
-formadv_funds = radient_prod.sql_to_frame('formadv_funds.sql')
-related_partners = radient_prod.sql_to_frame('related_partners.sql')
-direct_owners = radient_prod.sql_to_frame('direct_owners.sql')
+formd_funds = radient_prod.sql_to_frame('models/formd_funds.sql')
+formadv_funds = radient_prod.sql_to_frame('models/formadv_funds.sql')
+related_partners = radient_prod.sql_to_frame('models/related_partners.sql')
+direct_owners = radient_prod.sql_to_frame('models/direct_owners.sql')
 
 radient_prod.close()
 
@@ -341,7 +342,9 @@ match_funds_owners = match_funds_owners[match_funds_owners['owners_fund_ratio'] 
 # Inverse fund_confidence
 match_funds_owners['fund_confidence'] = 1 - match_funds_owners['fund_confidence']
 
-# Add cik_no_fund Column
+
+# Add cik_no_fund_nan Column
+
 match_funds_owners['cik_no_fund_nan'] = np.nan
 
 # Rename columns
@@ -359,6 +362,6 @@ match_funds_owners.rename({
 
 radient_prod = Connection()
 
-radient_prod.frame_to_sql(match_funds_owners, 'formd_formdfundmapping')
+radient_prod.frame_to_sql(match_funds_owners, 'formd_formdfirmmapping')
 
 radient_prod.close()
