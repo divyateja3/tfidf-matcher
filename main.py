@@ -5,7 +5,6 @@ import pandas as pd
 import sqlalchemy
 
 from fuzzywuzzy import fuzz
-from dotenv import load_dotenv
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from ftfy import fix_text
@@ -17,6 +16,7 @@ from sklearn.neighbors import NearestNeighbors
 class Connection:
 
     def __init__(self):
+
         CONNECTION_STRING = 'postgresql://hfdb:123AdminRiskAdv!@radient-prod.csx3vkjw93hn.us-east-1.rds.amazonaws.com:5433/radient_prod'
         engine = sqlalchemy.create_engine(CONNECTION_STRING)
 
@@ -342,7 +342,9 @@ match_funds_owners = match_funds_owners[match_funds_owners['owners_fund_ratio'] 
 # Inverse fund_confidence
 match_funds_owners['fund_confidence'] = 1 - match_funds_owners['fund_confidence']
 
+
 # Add cik_no_fund_nan Column
+
 match_funds_owners['cik_no_fund_nan'] = np.nan
 
 # Rename columns
