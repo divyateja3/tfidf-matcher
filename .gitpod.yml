@@ -1,0 +1,4 @@
+tasks:
+  - before: pip install --upgrade pip
+    init: pip install -r requirements.txt
+    command: python main.py

@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 import pandas as pd
 import sqlalchemy
@@ -16,7 +14,6 @@ from sklearn.neighbors import NearestNeighbors
 class Connection:
 
     def __init__(self):
-
         CONNECTION_STRING = 'postgresql://hfdb:123AdminRiskAdv!@radient-prod.csx3vkjw93hn.us-east-1.rds.amazonaws.com:5433/radient_prod'
         engine = sqlalchemy.create_engine(CONNECTION_STRING)
 
@@ -288,16 +285,20 @@ def preprocess(dataframe: pd.DataFrame, **parm):
 
 radient_prod = Connection()
 
+print("Fetching Data")
+
+# Fetch data from SQL queries
 formd_funds = radient_prod.sql_to_frame('models/formd_funds.sql')
 formadv_funds = radient_prod.sql_to_frame('models/formadv_funds.sql')
 related_partners = radient_prod.sql_to_frame('models/related_partners.sql')
 direct_owners = radient_prod.sql_to_frame('models/direct_owners.sql')
 
-radient_prod.close()
-
 formd_funds = preprocess(formd_funds, formd_funds=True)
 formadv_funds = preprocess(formadv_funds, formadv_funds=True)
 
+print("Generating Mapping")
+
+# Get mapping results
 matches_funds = get_matches_df(formd_funds, formadv_funds, column_a='form_d_funds', column_b='form_adv_funds', map_from='fund', map_to='fund')
 matches_funds = get_merged_matches(matches_funds, formd_funds, formadv_funds, column_a='fund', column_b='matched_fund', map_a='form_d_funds', map_b='form_adv_funds')
 
@@ -344,7 +345,6 @@ match_funds_owners['fund_confidence'] = 1 - match_funds_owners['fund_confidence'
 
 
 # Add cik_no_fund_nan Column
-
 match_funds_owners['cik_no_fund_nan'] = np.nan
 
 # Rename columns
@@ -360,7 +360,7 @@ match_funds_owners.rename({
     'form_d_firm_id': 'firm_formd_value_id'
 }, inplace=True, axis=1)
 
-radient_prod = Connection()
+print(f"Updating Results to Table of Size : {*match_funds_owners.shape}")
 
 radient_prod.frame_to_sql(match_funds_owners, 'formd_formdfirmmapping')
 
