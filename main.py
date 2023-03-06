@@ -360,7 +360,7 @@ match_funds_owners.rename({
     'form_d_firm_id': 'firm_formd_value_id'
 }, inplace=True, axis=1)
 
-print("Updating Results to Table")
+print(f"Updating Results to Table of Size : {*match_funds_owners.shape}")
 
 radient_prod.frame_to_sql(match_funds_owners, 'formd_formdfirmmapping')
 
